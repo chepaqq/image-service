@@ -3,13 +3,20 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/chepaqq99/jungle-task/pkg/db"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	r := mux.NewRouter()
 	r.Methods(http.MethodGet).Path("/images").HandlerFunc(nil)
 	r.Methods(http.MethodPost).Path("/login").HandlerFunc(nil)
@@ -17,12 +24,12 @@ func main() {
 	r.Methods(http.MethodPost).Path("/upload-picture").HandlerFunc(nil)
 
 	cfgDB := db.Config{
-		Username: "postgres",
-		Password: "qwerty",
-		Port:     "5432",
-		DBName:   "test_db",
-		Host:     "postgres",
-		SSLMode:  "disable",
+		Username: os.Getenv("POSTGRES_USER"),
+		Password: os.Getenv("POSTGRES_PASSWORD"),
+		Port:     os.Getenv("POSTGRES_PORT"),
+		DBName:   os.Getenv("POSTGRES_DB"),
+		Host:     os.Getenv("POSTGRES_HOST"),
+		SSLMode:  os.Getenv("POSTGRES_SSLMODE"),
 	}
 	_, err := db.ConnectPostgres(cfgDB)
 	if err != nil {
