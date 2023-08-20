@@ -1,28 +1,30 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
+	"time"
 
-	"github.com/chepaqq99/jungle-task/internal/config"
-	"github.com/gorilla/mux"
+	"github.com/chepaqq/jungle-task/internal/config"
+	"github.com/chepaqq/jungle-task/internal/delivery/api"
 	_ "github.com/lib/pq"
 )
 
 func main() {
-	r := mux.NewRouter()
-	r.Methods(http.MethodGet).Path("/images").HandlerFunc(nil)
-	r.Methods(http.MethodPost).Path("/login").HandlerFunc(nil)
-	r.Methods(http.MethodPost).Path("/register").HandlerFunc(nil)
-	r.Methods(http.MethodPost).Path("/upload-picture").HandlerFunc(nil)
-
 	cfg, err := config.Init()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Print(cfg)
+
+	srv := &http.Server{
+		Addr:         ":" + cfg.Server.Port,
+		Handler:      api.InitRoutes(),
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}
+
 	log.Print("Starting server on :", cfg.Server.Port)
-	err = http.ListenAndServe(":"+cfg.Server.Port, r)
+	err = srv.ListenAndServe()
 	log.Fatal(err)
 }
