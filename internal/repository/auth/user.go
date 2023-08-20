@@ -15,7 +15,7 @@ func NewRepository(db *sqlx.DB) *Repository {
 
 func (r *Repository) CreateUser(user domain.User) (int, error) {
 	var id int
-	query := `INSERT INTO user(username, password_hash) VALUES $1, $2`
+	query := `INSERT INTO users(username, password_hash) VALUES $1, $2`
 	row := r.db.QueryRow(query, user.Username, user.Password)
 	err := row.Scan(&id)
 	if err != nil {
