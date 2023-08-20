@@ -56,6 +56,20 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+  mc:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio:9000 minio_user minio_pass;
+      /usr/bin/mc mb myminio/images;
+      /usr/bin/mc policy set public myminio/images;
+      /usr/bin/mc policy set download myminio/images;
+      /usr/bin/mc anonymous set public myminio/images;
+
+      exit 0;
+      "
 
 volumes:
   dbdata:
