@@ -26,7 +26,7 @@ type (
 
 func Init() (*Config, error) {
 	var cfg Config
-	err := cleanenv.ReadEnv(&cfg)
+	err := cleanenv.ReadConfig(".env", &cfg)
 	if err != nil {
 		return nil, err
 	}
