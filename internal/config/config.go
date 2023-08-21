@@ -5,6 +5,7 @@ import (
 )
 
 type (
+	// Config holds various configuration settings
 	Config struct {
 		Server   HTTPConfig
 		Postgres PostgresConfig

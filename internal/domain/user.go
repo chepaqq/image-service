@@ -1,5 +1,6 @@
 package domain
 
+// User represents a user entity
 type User struct {
 	ID       int    `json:"id,omitempty"`
 	Username string `json:"username,omitempty"`

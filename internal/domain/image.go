@@ -1,5 +1,6 @@
 package domain
 
+// Image repsesents an image entity
 type Image struct {
 	ID        int    `json:"id,omitempty"`
 	UserID    int    `json:"user_id,omitempty"`
