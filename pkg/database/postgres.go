@@ -6,6 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// ConnectPostgres establishes a connection to PostgreSQL
 func ConnectPostgres(url string) (*sqlx.DB, error) {
 	db, err := sqlx.Open("postgres", url)
 	db.SetMaxOpenConns(25)

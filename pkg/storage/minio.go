@@ -9,10 +9,10 @@ import (
 )
 
 // ConnectMinio establishes a connection to PostgreSQL
-func ConnectMinio(useSSL bool, endpoint, bucketName, accessKeyID, secretAccessKey, bucketLocation string) (*minio.Client, error) {
+func ConnectMinio(useSSL bool, endpoint, bucketName, bucketLocation string) (*minio.Client, error) {
 	// Initialize minio client object.
 	minioClient, errInit := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
+		Creds:  credentials.NewEnvMinio(),
 		Secure: useSSL,
 	})
 	if errInit != nil {

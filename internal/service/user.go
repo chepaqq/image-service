@@ -1,6 +1,7 @@
 package service
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/chepaqq/jungle-task/internal/domain"
@@ -11,7 +12,7 @@ import (
 // TODO: Retrieve from env file
 const (
 	tokenTTL  = time.Hour * 12
-	secretKey = "123213123sdfsg"
+	secretKey = "qwerty"
 )
 
 type userRepository interface {
@@ -40,11 +41,6 @@ func (s *UserService) CreateUser(user domain.User) (int, error) {
 	return s.repo.CreateUser(user)
 }
 
-type tokenClaims struct {
-	jwt.StandardClaims
-	UserID int `json:"user_id"`
-}
-
 // GenerateToken generates a JWT token for user
 func (s *UserService) GenerateToken(username, password string) (string, error) {
 	user, err := s.repo.GetUserByName(username)
@@ -56,12 +52,11 @@ func (s *UserService) GenerateToken(username, password string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
-		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(tokenTTL).Unix(),
-			IssuedAt:  time.Now().Unix(),
-		},
-		user.ID,
-	})
+
+	claims := jwt.MapClaims{
+		"user_id": strconv.Itoa(user.ID),
+		"exp":     time.Now().Add(time.Hour * 12).Unix(),
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(secretKey))
 }

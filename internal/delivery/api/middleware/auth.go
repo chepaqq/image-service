@@ -12,7 +12,7 @@ import (
 
 type contextKey string
 
-const userCtx contextKey = "user_id"
+const UserIDKey contextKey = "user_id"
 
 // UserMiddleware represents middlewares for user-related operations
 type UserMiddleware struct {
@@ -40,7 +40,7 @@ func (m *UserMiddleware) AccessMiddleware(next http.Handler) http.Handler {
 				return nil, fmt.Errorf("unexpected signing method")
 			}
 			// TODO: get secret key from env file
-			return []byte("secret"), nil
+			return []byte("qwerty"), nil
 		})
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
@@ -64,7 +64,7 @@ func (m *UserMiddleware) AccessMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), userCtx, userID)
+		ctx := context.WithValue(r.Context(), UserIDKey, userID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
