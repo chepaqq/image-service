@@ -8,7 +8,7 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
-// ConnectMinio establishes a connection to PostgreSQL
+// ConnectMinio establishes a connection to Minio
 func ConnectMinio(useSSL bool, endpoint, bucketName, bucketLocation string) (*minio.Client, error) {
 	// Initialize minio client object.
 	minioClient, errInit := minio.New(endpoint, &minio.Options{
