@@ -3,18 +3,19 @@ package app
 import (
 	"fmt"
 	"log"
-	"net/http"
+	"os"
+	"os/signal"
 	"strconv"
-	"time"
+	"syscall"
 
 	"github.com/chepaqq/jungle-task/internal/config"
+	"github.com/chepaqq/jungle-task/internal/delivery/api"
 	"github.com/chepaqq/jungle-task/internal/delivery/api/handler"
-	"github.com/chepaqq/jungle-task/internal/delivery/api/middleware"
 	"github.com/chepaqq/jungle-task/internal/repository"
 	"github.com/chepaqq/jungle-task/internal/service"
 	"github.com/chepaqq/jungle-task/pkg/database"
+	"github.com/chepaqq/jungle-task/pkg/server"
 	"github.com/chepaqq/jungle-task/pkg/storage"
-	"github.com/gorilla/mux"
 )
 
 // Run initialize and starts application
@@ -52,31 +53,28 @@ func Run(cfg *config.Config) {
 	userService := service.NewUserService(userRepository)
 	imageService := service.NewImageService(imageRepository)
 
-	// Middlewares
-	userMiddleware := middleware.NewUserMiddleware(*userService)
-
 	// Handlers
 	userHandler := handler.NewUserHandler(userService)
 	imageHandler := handler.NewImageHandler(imageService)
 
-	// Routes
-	router := mux.NewRouter()
+	// HTTP
+	router := api.NewRouter(*userHandler, *imageHandler)
+	server := server.New(router, cfg.Server.Port)
 
-	router.HandleFunc("/login", userHandler.SignIn).Methods(http.MethodPost)
-	router.HandleFunc("/register", userHandler.SignUp).Methods(http.MethodPost)
+	// Waiting signals
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 
-	restrictRouter := router.PathPrefix("/").Subrouter()
-	restrictRouter.Use(userMiddleware.AccessMiddleware)
-	restrictRouter.HandleFunc("/images", imageHandler.GetImages).Methods(http.MethodGet)
-	restrictRouter.HandleFunc("/upload-picture", imageHandler.UploadImage).Methods(http.MethodPost)
-
-	srv := &http.Server{
-		Addr:         ":" + cfg.Server.Port,
-		Handler:      router,
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
+	select {
+	case s := <-interrupt:
+		log.Print("Signal interrupt error: " + s.String())
+	case err = <-server.Notify():
+		log.Print("Server notify", "err", err)
 	}
-	err = srv.ListenAndServe()
-	log.Fatal(err)
+
+	// Shutdown server
+	err = server.Shutdown()
+	if err != nil {
+		log.Print("Server shutdown: ", "err", err)
+	}
 }
