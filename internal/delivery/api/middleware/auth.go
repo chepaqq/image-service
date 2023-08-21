@@ -28,12 +28,11 @@ func AuthMiddleware(next http.Handler) http.Handler {
 
 		tokenString = strings.Replace(tokenString, "Bearer ", "", 1)
 
-		jwtSecret := os.Getenv("JWT_SECRET")
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method")
 			}
-			return []byte(jwtSecret), nil
+			return []byte(os.Getenv("JWT_SECRET")), nil
 		})
 		if err != nil {
 			http.Error(w, "invalid authorization token", http.StatusUnauthorized)
