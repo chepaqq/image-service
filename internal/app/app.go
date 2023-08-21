@@ -18,12 +18,7 @@ import (
 )
 
 // Run initialize and starts application
-func Run() {
-	cfg, err := config.Init()
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func Run(cfg *config.Config) {
 	// Deps
 	postgresURL := fmt.Sprintf(
 		"user=%s dbname=%s host=%s password=%s port=%s sslmode=%s",
