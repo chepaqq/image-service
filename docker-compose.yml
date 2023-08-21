@@ -19,6 +19,7 @@ services:
       context: .
       dockerfile: Dockerfile
     depends_on:
+      - "minio"
       - "postgres"
     environment:
       PORT: ${PORT}
