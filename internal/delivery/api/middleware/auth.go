@@ -6,26 +6,16 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/chepaqq/jungle-task/internal/service"
 	"github.com/golang-jwt/jwt"
 )
 
 type contextKey string
 
+// UserIDKey is a context key to store user id
 const UserIDKey contextKey = "user_id"
 
-// UserMiddleware represents middlewares for user-related operations
-type UserMiddleware struct {
-	userMiddleware service.UserService
-}
-
-// NewUserMiddleware creates and returns a new UserMiddleware object
-func NewUserMiddleware(userService service.UserService) *UserMiddleware {
-	return &UserMiddleware{userMiddleware: userService}
-}
-
-// AccessMiddleware validates user access
-func (m *UserMiddleware) AccessMiddleware(next http.Handler) http.Handler {
+// AuthMiddleware validates user access
+func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString := r.Header.Get("Authorization")
 		if tokenString == "" {
@@ -66,5 +56,20 @@ func (m *UserMiddleware) AccessMiddleware(next http.Handler) http.Handler {
 
 		ctx := context.WithValue(r.Context(), UserIDKey, userID)
 		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+// AccessControlMiddleware handles access control and  CORS middleware
+func AccessControlMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT")
+		w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type")
+
+		if r.Method == "OPTIONS" {
+			return
+		}
+
+		next.ServeHTTP(w, r)
 	})
 }
