@@ -11,6 +11,7 @@ import (
 	authRepository "github.com/chepaqq/jungle-task/internal/repository/auth"
 	authService "github.com/chepaqq/jungle-task/internal/service/auth"
 	"github.com/chepaqq/jungle-task/pkg/database/postgres"
+	"github.com/chepaqq/jungle-task/pkg/storage"
 	"github.com/gorilla/mux"
 )
 
@@ -31,6 +32,11 @@ func Run() {
 		cfg.Postgres.SSLMode,
 	)
 	postgresClient, err := postgres.ConnectPostgres(postgresURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	minioClient, err := storage.ConnectMinio(cfg.Minio.Endpoint, strconv.ParseBool(cfg.Minio.SSL), cfg.Minio.BucketName, cfg.Minio.BucketLocation)
 	if err != nil {
 		log.Fatal(err)
 	}
