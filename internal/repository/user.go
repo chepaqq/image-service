@@ -28,10 +28,10 @@ func (r *UserRepository) CreateUser(user domain.User) (int, error) {
 }
 
 // GetUserByName retrieves a user from the repository
-func (r *UserRepository) GetUserByName(username string, passwordHash string) (domain.User, error) {
+func (r *UserRepository) GetUserByName(username string) (domain.User, error) {
 	var user domain.User
-	query := `SELECT id from users WHERE username=$1 AND password_hash=$2`
-	err := r.db.Get(&user, query, username, passwordHash)
+	query := `SELECT * from users WHERE username=$1`
+	err := r.db.Get(&user, query, username)
 	if err != nil {
 		return user, err
 	}

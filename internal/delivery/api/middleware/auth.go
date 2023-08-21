@@ -6,19 +6,26 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/chepaqq/jungle-task/internal/service/auth"
+	"github.com/chepaqq/jungle-task/internal/service"
 	"github.com/golang-jwt/jwt"
 )
 
-type AuthMiddleware struct {
-	authService auth.Service
+type contextKey string
+
+const userCtx contextKey = "user_id"
+
+// UserMiddleware represents middlewares for user-related operations
+type UserMiddleware struct {
+	userMiddleware service.UserService
 }
 
-func NewAuthMiddleware(authService user.Service) *AuthMiddleware {
-	return &AuthMiddleware{authService: authService}
+// NewUserMiddleware creates and returns a new UserMiddleware object
+func NewUserMiddleware(userService service.UserService) *UserMiddleware {
+	return &UserMiddleware{userMiddleware: userService}
 }
 
-func (m *AuthMiddleware) AccessMiddleware(next http.Handler) http.Handler {
+// AccessMiddleware validates user access
+func (m *UserMiddleware) AccessMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString := r.Header.Get("Authorization")
 		if tokenString == "" {
@@ -57,7 +64,7 @@ func (m *AuthMiddleware) AccessMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), "user_id", userID)
+		ctx := context.WithValue(r.Context(), userCtx, userID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

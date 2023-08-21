@@ -7,14 +7,14 @@ import (
 	"time"
 
 	"github.com/chepaqq/jungle-task/internal/config"
-	authHandler "github.com/chepaqq/jungle-task/internal/delivery/api/handler/auth"
-	authRepository "github.com/chepaqq/jungle-task/internal/repository/auth"
-	authService "github.com/chepaqq/jungle-task/internal/service/auth"
-	"github.com/chepaqq/jungle-task/pkg/database/postgres"
-	"github.com/chepaqq/jungle-task/pkg/storage"
+	"github.com/chepaqq/jungle-task/internal/delivery/api/handler"
+	"github.com/chepaqq/jungle-task/internal/repository"
+	"github.com/chepaqq/jungle-task/internal/service"
+	"github.com/chepaqq/jungle-task/pkg/database"
 	"github.com/gorilla/mux"
 )
 
+// Run initialize and starts application
 func Run() {
 	cfg, err := config.Init()
 	if err != nil {
@@ -31,30 +31,25 @@ func Run() {
 		cfg.Postgres.Port,
 		cfg.Postgres.SSLMode,
 	)
-	postgresClient, err := postgres.ConnectPostgres(postgresURL)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	minioClient, err := storage.ConnectMinio(cfg.Minio.Endpoint, strconv.ParseBool(cfg.Minio.SSL), cfg.Minio.BucketName, cfg.Minio.BucketLocation)
+	postgresClient, err := database.ConnectPostgres(postgresURL)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Repos
-	authRepository := authRepository.NewRepository(postgresClient)
+	userRepository := repository.NewUserRepository(postgresClient)
 
 	// Services
-	authService := authService.NewService(authRepository)
+	userService := service.NewUserService(userRepository)
 
 	// Handlers
-	authHandler := authHandler.NewHandler(*authService)
+	userHandler := handler.NewUserHandler(userService)
 
 	// Routes
 	router := mux.NewRouter()
 
-	router.HandleFunc("/login", authHandler.SignIn).Methods(http.MethodPost)
-	router.HandleFunc("/register", authHandler.SignUp).Methods(http.MethodPost)
+	router.HandleFunc("/login", userHandler.SignIn).Methods(http.MethodPost)
+	router.HandleFunc("/register", userHandler.SignUp).Methods(http.MethodPost)
 	router.HandleFunc("/images", nil).Methods(http.MethodGet)
 	router.HandleFunc("/upload-picture", nil).Methods(http.MethodPost)
 
