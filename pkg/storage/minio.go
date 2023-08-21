@@ -1,20 +1,36 @@
 package storage
 
 import (
-	"fmt"
+	"context"
+	"log"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
-func ConnectMinio(endpoint string, useSSL bool, bucketName string, bucketLocation string) (*minio.Client, error) {
-	minioClient, err := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewEnvMinio(),
+// ConnectMinio establishes a connection to PostgreSQL
+func ConnectMinio(useSSL bool, endpoint, bucketName, accessKeyID, secretAccessKey, bucketLocation string) (*minio.Client, error) {
+	// Initialize minio client object.
+	minioClient, errInit := minio.New(endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
 		Secure: useSSL,
 	})
-	if err != nil {
-		return nil, fmt.Errorf("new minio client: %w", err)
+	if errInit != nil {
+		log.Fatalln(errInit)
 	}
 
-	return minioClient, err
+	// Make a new bucket
+	err := minioClient.MakeBucket(context.Background(), bucketName, minio.MakeBucketOptions{Region: bucketLocation})
+	if err != nil {
+		// Check to see if we already own this bucket (which happens if you run this twice)
+		exists, errBucketExists := minioClient.BucketExists(context.Background(), bucketName)
+		if errBucketExists == nil && exists {
+			log.Printf("We already own %s\n", bucketName)
+		} else {
+			log.Fatalln(err)
+		}
+	} else {
+		log.Printf("Successfully created %s\n", bucketName)
+	}
+	return minioClient, errInit
 }
