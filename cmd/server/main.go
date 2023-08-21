@@ -1,17 +1,16 @@
 package main
 
 import (
-	"log"
-
 	"github.com/chepaqq/jungle-task/internal/app"
 	"github.com/chepaqq/jungle-task/internal/config"
+	"github.com/chepaqq/jungle-task/pkg/logger"
 	_ "github.com/lib/pq"
 )
 
 func main() {
 	cfg, err := config.Init()
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatalf("Failed to load config: %v", err)
 	}
 	app.Run(cfg)
 }

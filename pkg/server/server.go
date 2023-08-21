@@ -2,9 +2,10 @@ package server
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"time"
+
+	"github.com/chepaqq/jungle-task/pkg/logger"
 )
 
 const (
@@ -42,7 +43,7 @@ func New(handler http.Handler, port string) *Server {
 
 // Start bootstraps http server.
 func (s *Server) start() {
-	log.Printf("Starting HTTP server on port %s", s.server.Addr)
+	logger.Infof("Starting HTTP server on port %s", s.server.Addr)
 	go func() {
 		s.notify <- s.server.ListenAndServe()
 		close(s.notify)

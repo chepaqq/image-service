@@ -2,9 +2,11 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/chepaqq/jungle-task/internal/domain"
+	"github.com/chepaqq/jungle-task/pkg/logger"
 )
 
 type userService interface {
@@ -30,9 +32,18 @@ func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid input body", http.StatusBadRequest)
 		return
 	}
+	if len(input.Password) < 8 {
+		http.Error(w, "short password", http.StatusBadRequest)
+		logger.Error("short password")
+		return
+	}
 	id, err := h.userService.CreateUser(input)
-	// TODO: check if user exists
 	if err != nil {
+		if errors.Is(err, domain.ErrUserConflict) {
+			http.Error(w, "user already exists", http.StatusConflict)
+			logger.Error("user already exists")
+			return
+		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -42,8 +53,8 @@ func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 }
 
 type signInInput struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username,omitempty"`
+	Password string `json:"password,omitempty"`
 }
 
 // SignIn handles user authorization
@@ -52,10 +63,28 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
 		http.Error(w, "invalid input body", http.StatusBadRequest)
+		logger.Error("invalid input body")
+		return
+	}
+
+	if input.Username == "" || input.Password == "" {
+		http.Error(w, "missing required fields", http.StatusBadRequest)
+		logger.Error("missing required fields")
+		return
+	}
+
+	if len(input.Password) < 8 {
+		http.Error(w, "short password", http.StatusBadRequest)
+		logger.Error("short password")
 		return
 	}
 	token, err := h.userService.GenerateToken(input.Username, input.Password)
 	if err != nil {
+		if errors.Is(err, domain.ErrInvalidCredentials) {
+			http.Error(w, "invalid username or password", http.StatusUnauthorized)
+			logger.Error("invalid username or password")
+			return
+		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 	json.NewEncoder(w).Encode(map[string]interface{}{

@@ -35,3 +35,11 @@ func Error(msg ...interface{}) {
 func Errorf(format string, args ...interface{}) {
 	logrus.Errorf(format, args...)
 }
+
+func Fatal(msg ...interface{}) {
+	logrus.Fatal(msg...)
+}
+
+func Fatalf(format string, args ...interface{}) {
+	logrus.Fatalf(format, args...)
+}

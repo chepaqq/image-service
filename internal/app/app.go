@@ -2,7 +2,6 @@ package app
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"strconv"
@@ -14,6 +13,7 @@ import (
 	"github.com/chepaqq/jungle-task/internal/repository"
 	"github.com/chepaqq/jungle-task/internal/service"
 	"github.com/chepaqq/jungle-task/pkg/database"
+	"github.com/chepaqq/jungle-task/pkg/logger"
 	"github.com/chepaqq/jungle-task/pkg/server"
 	"github.com/chepaqq/jungle-task/pkg/storage"
 )
@@ -32,19 +32,20 @@ func Run(cfg *config.Config) {
 	)
 	postgresClient, err := database.ConnectPostgres(postgresURL)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatalf("Failed to connect to Postgres: %v", err)
 	}
-
+	logger.Info("Starting Postgres")
 	useSSL, err := strconv.ParseBool(cfg.Minio.SSL)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	minioClient, err := storage.ConnectMinio(useSSL, cfg.Minio.Endpoint, cfg.Minio.BucketName, cfg.Minio.BucketLocation)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatalf("Failed to connect to Minio: %v", err)
 	}
 
+	logger.Info("Starting Minio")
 	// Repos
 	userRepository := repository.NewUserRepository(postgresClient)
 	imageRepository := repository.NewImageRepository(postgresClient, minioClient)
@@ -67,14 +68,14 @@ func Run(cfg *config.Config) {
 
 	select {
 	case s := <-interrupt:
-		log.Print("Signal interrupt error: " + s.String())
+		logger.Errorf("Signal interrupt error: " + s.String())
 	case err = <-server.Notify():
-		log.Print("Server notify", "err", err)
+		logger.Infof("Server notify %v:", err)
 	}
 
 	// Shutdown server
 	err = server.Shutdown()
 	if err != nil {
-		log.Print("Server shutdown: ", "err", err)
+		logger.Infof("Server shutdown: %v", err)
 	}
 }

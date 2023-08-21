@@ -15,7 +15,7 @@ func NewRouter(userHandler handler.UserHandler, imageHandler handler.ImageHandle
 	router.HandleFunc("/login", userHandler.SignIn).Methods(http.MethodPost)
 	router.HandleFunc("/register", userHandler.SignUp).Methods(http.MethodPost)
 	router.Use(middleware.LoggingMiddleware)
-	router.Use(middleware.LoggingMiddleware)
+	router.Use(middleware.ApplicationRecovery)
 
 	restrictRouter := router.PathPrefix("/").Subrouter()
 	restrictRouter.HandleFunc("/images", imageHandler.GetImages).Methods(http.MethodGet)

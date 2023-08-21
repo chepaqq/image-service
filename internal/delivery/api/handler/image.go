@@ -10,6 +10,7 @@ import (
 
 	"github.com/chepaqq/jungle-task/internal/delivery/api/middleware"
 	"github.com/chepaqq/jungle-task/internal/domain"
+	"github.com/chepaqq/jungle-task/pkg/logger"
 )
 
 type imageService interface {
@@ -32,23 +33,27 @@ func NewImageHandler(imageService imageService) *ImageHandler {
 func (h *ImageHandler) UploadImage(w http.ResponseWriter, r *http.Request) {
 	userIDStr, ok := r.Context().Value(middleware.UserIDKey).(string)
 	if !ok {
-		http.Error(w, "user_id not found in context", http.StatusInternalServerError)
+		http.Error(w, "User_id not found in context", http.StatusInternalServerError)
+		logger.Error("user_id not found in context")
 		return
 	}
 	userID, err := strconv.Atoi(userIDStr)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to convert string to int", http.StatusInternalServerError)
+		logger.Error("failed to convert string to int")
 	}
 
 	err = r.ParseMultipartForm(10 << 20) // 10 MB max file size
 	if err != nil {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)
+		logger.Error("unable to parse form")
 		return
 	}
 
 	src, hdr, err := r.FormFile("image")
 	if err != nil {
 		http.Error(w, "Unable to get file", http.StatusBadRequest)
+		logger.Error("Unable to get file")
 		return
 	}
 	defer src.Close()
@@ -85,7 +90,12 @@ func (h *ImageHandler) GetImages(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	err = json.NewEncoder(w).Encode(images)
+	w.Header().Set("Content-Type", "application/json")
+	if images != nil {
+		err = json.NewEncoder(w).Encode(images)
+	} else {
+		err = json.NewEncoder(w).Encode("User has no images")
+	}
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

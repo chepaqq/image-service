@@ -16,7 +16,7 @@ func ConnectMinio(useSSL bool, endpoint, bucketName, bucketLocation string) (*mi
 		Secure: useSSL,
 	})
 	if errInit != nil {
-		log.Fatalln(errInit)
+		return nil, errInit
 	}
 
 	// Make a new bucket
@@ -27,10 +27,8 @@ func ConnectMinio(useSSL bool, endpoint, bucketName, bucketLocation string) (*mi
 		if errBucketExists == nil && exists {
 			log.Printf("We already own %s\n", bucketName)
 		} else {
-			log.Fatalln(err)
+			return nil, err
 		}
-	} else {
-		log.Printf("Successfully created %s\n", bucketName)
 	}
-	return minioClient, errInit
+	return minioClient, nil
 }

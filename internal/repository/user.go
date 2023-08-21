@@ -3,6 +3,7 @@ package repository
 import (
 	"github.com/chepaqq/jungle-task/internal/domain"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 )
 
 // UserRepository represents repository for a user entity
@@ -18,10 +19,13 @@ func NewUserRepository(db *sqlx.DB) *UserRepository {
 // CreateUser inserts new user into the repository
 func (r *UserRepository) CreateUser(user domain.User) (int, error) {
 	var id int
-	query := `INSERT INTO users(username, password_hash) VALUES ($1, $2)`
-	row := r.db.QueryRow(query, user.Username, user.Password)
-	err := row.Scan(&id)
+	query := `INSERT INTO users(username, password_hash) VALUES ($1, $2) RETURNING id`
+	result := r.db.QueryRow(query, user.Username, user.Password)
+	err := result.Scan(&id)
 	if err != nil {
+		if pgErr, ok := err.(*pq.Error); ok && pgErr.Code == "23505" {
+			return 0, domain.ErrUserConflict
+		}
 		return 0, err
 	}
 	return id, nil

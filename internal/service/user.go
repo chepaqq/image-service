@@ -1,6 +1,7 @@
 package service
 
 import (
+	"os"
 	"strconv"
 	"time"
 
@@ -9,11 +10,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// TODO: Retrieve from env file
-const (
-	tokenTTL  = time.Hour * 12
-	secretKey = "qwerty"
-)
+var secretKey = os.Getenv("JWT_SECRET")
 
 type userRepository interface {
 	CreateUser(user domain.User) (int, error)
@@ -37,7 +34,6 @@ func (s *UserService) CreateUser(user domain.User) (int, error) {
 		return 0, err
 	}
 	user.Password = string(bytes)
-	// TODO: check if user exists already
 	return s.repo.CreateUser(user)
 }
 
@@ -50,12 +46,12 @@ func (s *UserService) GenerateToken(username, password string) (string, error) {
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
-		return "", err
+		return "", domain.ErrInvalidCredentials
 	}
 
 	claims := jwt.MapClaims{
 		"user_id": strconv.Itoa(user.ID),
-		"exp":     time.Now().Add(time.Hour * 12).Unix(),
+		"exp":     time.Now().Add(12 * time.Hour).Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(secretKey))

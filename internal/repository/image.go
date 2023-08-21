@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"net/url"
+	"os"
 	"path/filepath"
 
 	"github.com/chepaqq/jungle-task/internal/domain"
@@ -52,8 +53,7 @@ func (r *ImageRepository) UploadImage(ctx context.Context, bucketName, objectNam
 		return nil, err
 	}
 	url := r.storage.EndpointURL()
-	// TODO: Retrieve from env file
-	url.Host = "0.0.0.0:9000"
-	url.Path = filepath.Join(url.Path, "images", objectName)
+	url.Host = os.Getenv("MINIO_PUBLIC_HOST")
+	url.Path = filepath.Join(url.Path, os.Getenv("MINIO_BUCKET_NAME"), objectName)
 	return url, nil
 }
