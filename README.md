@@ -1,4 +1,4 @@
-## Jungle Test Task: Image Upload and Authentication Service
+## Image Upload and Authentication Service
 
 This is a test task for creating a service that allows users to register, authenticate, upload images, and retrieve their uploaded images.
 
