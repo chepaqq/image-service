@@ -40,7 +40,7 @@ func Run(cfg *config.Config) {
 		logger.Fatal(err)
 	}
 
-	minioClient, err := storage.ConnectMinio(useSSL, cfg.Minio.Endpoint, cfg.Minio.BucketName, cfg.Minio.BucketLocation)
+	minioStorage, err := storage.NewMinioStorage(cfg.Minio.Endpoint, cfg.Minio.BucketName, cfg.Minio.BucketLocation, useSSL)
 	if err != nil {
 		logger.Fatalf("Failed to connect to Minio: %v", err)
 	}
@@ -48,7 +48,7 @@ func Run(cfg *config.Config) {
 	logger.Info("Starting Minio")
 	// Repos
 	userRepository := repository.NewUserRepository(postgresClient)
-	imageRepository := repository.NewImageRepository(postgresClient, minioClient)
+	imageRepository := repository.NewImageRepository(postgresClient, minioStorage)
 
 	// Services
 	userService := service.NewUserService(userRepository)

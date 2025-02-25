@@ -4,22 +4,21 @@ import (
 	"context"
 	"io"
 	"net/url"
-	"os"
-	"path/filepath"
 
 	"github.com/chepaqq/jungle-task/internal/domain"
+	"github.com/chepaqq/jungle-task/pkg/storage"
+
 	"github.com/jmoiron/sqlx"
-	"github.com/minio/minio-go/v7"
 )
 
 // ImageRepository represents repository for an image entity
 type ImageRepository struct {
 	db      *sqlx.DB
-	storage *minio.Client
+	storage storage.Storage
 }
 
 // NewImageRepository creates and returns a new ImageRepository object
-func NewImageRepository(db *sqlx.DB, storage *minio.Client) *ImageRepository {
+func NewImageRepository(db *sqlx.DB, storage storage.Storage) *ImageRepository {
 	return &ImageRepository{db: db, storage: storage}
 }
 
@@ -48,12 +47,5 @@ func (r *ImageRepository) GetImages(userID int) ([]domain.Image, error) {
 
 // UploadImage uploads object to Minio bucket
 func (r *ImageRepository) UploadImage(ctx context.Context, bucketName, objectName string, reader io.Reader) (*url.URL, error) {
-	_, err := r.storage.PutObject(ctx, bucketName, objectName, reader, -1, minio.PutObjectOptions{ContentType: "image/jpeg"})
-	if err != nil {
-		return nil, err
-	}
-	url := r.storage.EndpointURL()
-	url.Host = os.Getenv("MINIO_PUBLIC_HOST")
-	url.Path = filepath.Join(url.Path, os.Getenv("MINIO_BUCKET_NAME"), objectName)
-	return url, nil
+	return r.storage.Upload(ctx, bucketName, objectName, reader, "image/jpeg")
 }
