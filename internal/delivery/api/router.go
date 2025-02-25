@@ -3,9 +3,10 @@ package api
 import (
 	"net/http"
 
+	"github.com/gorilla/mux"
+
 	"github.com/chepaqq/image-service/internal/delivery/api/handler"
 	"github.com/chepaqq/image-service/internal/delivery/api/middleware"
-	"github.com/gorilla/mux"
 )
 
 // NewRouter initializes routes
