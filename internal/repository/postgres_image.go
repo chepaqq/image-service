@@ -10,8 +10,8 @@ type PostgresImageRepository struct {
 	db *sqlx.DB
 }
 
-// NewImageRepository creates and returns a new ImageRepository object
-func NewImageRepository(db *sqlx.DB) *PostgresImageRepository {
+// NewPostgresImageRepository creates and returns a new ImageRepository object
+func NewPostgresImageRepository(db *sqlx.DB) ImageRepository {
 	return &PostgresImageRepository{db: db}
 }
 

@@ -6,29 +6,29 @@ import (
 	"time"
 
 	"github.com/chepaqq/image-service/internal/domain"
+	"github.com/chepaqq/image-service/internal/repository"
+
 	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 )
 
-var secretKey = os.Getenv("JWT_SECRET")
-
-type userRepository interface {
+type UserService interface {
 	CreateUser(user domain.User) (int, error)
-	GetUserByName(username string) (domain.User, error)
+	GenerateToken(username, password string) (string, error)
 }
 
-// UserService represents a service layer for user.
-type UserService struct {
-	repo userRepository
+// userService represents a service layer for user.
+type userService struct {
+	repo repository.UserRepository
 }
 
-// NewUserService creates and returns a new UserService object
-func NewUserService(repo userRepository) *UserService {
-	return &UserService{repo: repo}
+// NewUserService creates and returns a new userService object
+func NewUserService(repo repository.UserRepository) UserService {
+	return &userService{repo: repo}
 }
 
 // CreateUser create a new user
-func (s *UserService) CreateUser(user domain.User) (int, error) {
+func (s *userService) CreateUser(user domain.User) (int, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return 0, err
@@ -38,7 +38,7 @@ func (s *UserService) CreateUser(user domain.User) (int, error) {
 }
 
 // GenerateToken generates a JWT token for user
-func (s *UserService) GenerateToken(username, password string) (string, error) {
+func (s *userService) GenerateToken(username, password string) (string, error) {
 	user, err := s.repo.GetUserByName(username)
 	if err != nil {
 		return "", err

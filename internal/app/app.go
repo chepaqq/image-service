@@ -48,8 +48,8 @@ func Run(cfg *config.Config) {
 	logger.Info("Starting Minio")
 
 	// Repos
-	userRepository := repository.NewUserRepository(postgresClient)
-	imageRepository := repository.NewImageRepository(postgresClient)
+	userRepository := repository.NewPostgresUserRepository(postgresClient)
+	imageRepository := repository.NewPostgresImageRepository(postgresClient)
 
 	// Services
 	userService := service.NewUserService(userRepository)
