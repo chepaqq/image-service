@@ -1,31 +1,23 @@
 package handler
 
 import (
-	"context"
 	"encoding/json"
-	"io"
 	"net/http"
-	"net/url"
 	"strconv"
 
 	"github.com/chepaqq/image-service/internal/delivery/api/middleware"
 	"github.com/chepaqq/image-service/internal/domain"
+	"github.com/chepaqq/image-service/internal/service"
 	"github.com/chepaqq/image-service/pkg/logger"
 )
 
-type imageService interface {
-	GetImages(userID int) ([]domain.Image, error)
-	UploadImage(ctx context.Context, bucketName, objectName string, reader io.Reader) (*url.URL, error)
-	AddImage(image domain.Image) (int, error)
-}
-
 // ImageHandler handles HTTP requests related to image
 type ImageHandler struct {
-	imageService imageService
+	imageService service.ImageService
 }
 
 // NewImageHandler creates and returns a new ImageHandler object
-func NewImageHandler(imageService imageService) *ImageHandler {
+func NewImageHandler(imageService service.ImageService) *ImageHandler {
 	return &ImageHandler{imageService: imageService}
 }
 

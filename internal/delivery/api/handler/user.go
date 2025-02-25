@@ -6,21 +6,17 @@ import (
 	"net/http"
 
 	"github.com/chepaqq/image-service/internal/domain"
+	"github.com/chepaqq/image-service/internal/service"
 	"github.com/chepaqq/image-service/pkg/logger"
 )
 
-type userService interface {
-	CreateUser(user domain.User) (int, error)
-	GenerateToken(username, password string) (string, error)
-}
-
 // UserHandler handles HTTP requests related to user
 type UserHandler struct {
-	userService userService
+	userService service.UserService
 }
 
 // NewUserHandler creates and returns a new UserHandler object
-func NewUserHandler(userService userService) *UserHandler {
+func NewUserHandler(userService service.UserService) *UserHandler {
 	return &UserHandler{userService: userService}
 }
 
