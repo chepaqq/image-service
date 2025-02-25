@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/chepaqq/jungle-task/internal/domain"
+	"github.com/chepaqq/image-service/internal/domain"
 	"github.com/google/uuid"
 )
 

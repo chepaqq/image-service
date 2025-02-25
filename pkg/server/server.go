@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/chepaqq/jungle-task/pkg/logger"
+	"github.com/chepaqq/image-service/pkg/logger"
 )
 
 const (

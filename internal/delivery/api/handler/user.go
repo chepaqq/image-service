@@ -5,8 +5,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/chepaqq/jungle-task/internal/domain"
-	"github.com/chepaqq/jungle-task/pkg/logger"
+	"github.com/chepaqq/image-service/internal/domain"
+	"github.com/chepaqq/image-service/pkg/logger"
 )
 
 type userService interface {

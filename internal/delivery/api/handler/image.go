@@ -8,9 +8,9 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/chepaqq/jungle-task/internal/delivery/api/middleware"
-	"github.com/chepaqq/jungle-task/internal/domain"
-	"github.com/chepaqq/jungle-task/pkg/logger"
+	"github.com/chepaqq/image-service/internal/delivery/api/middleware"
+	"github.com/chepaqq/image-service/internal/domain"
+	"github.com/chepaqq/image-service/pkg/logger"
 )
 
 type imageService interface {

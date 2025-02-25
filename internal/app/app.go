@@ -7,15 +7,15 @@ import (
 	"strconv"
 	"syscall"
 
-	"github.com/chepaqq/jungle-task/internal/config"
-	"github.com/chepaqq/jungle-task/internal/delivery/api"
-	"github.com/chepaqq/jungle-task/internal/delivery/api/handler"
-	"github.com/chepaqq/jungle-task/internal/repository"
-	"github.com/chepaqq/jungle-task/internal/service"
-	"github.com/chepaqq/jungle-task/pkg/database"
-	"github.com/chepaqq/jungle-task/pkg/logger"
-	"github.com/chepaqq/jungle-task/pkg/server"
-	"github.com/chepaqq/jungle-task/pkg/storage"
+	"github.com/chepaqq/image-service/internal/config"
+	"github.com/chepaqq/image-service/internal/delivery/api"
+	"github.com/chepaqq/image-service/internal/delivery/api/handler"
+	"github.com/chepaqq/image-service/internal/repository"
+	"github.com/chepaqq/image-service/internal/service"
+	"github.com/chepaqq/image-service/pkg/database"
+	"github.com/chepaqq/image-service/pkg/logger"
+	"github.com/chepaqq/image-service/pkg/server"
+	"github.com/chepaqq/image-service/pkg/storage"
 )
 
 // Run initialize and starts application

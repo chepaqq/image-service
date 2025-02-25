@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/chepaqq/jungle-task/internal/domain"
+	"github.com/chepaqq/image-service/internal/domain"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 )

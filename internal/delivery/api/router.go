@@ -3,8 +3,8 @@ package api
 import (
 	"net/http"
 
-	"github.com/chepaqq/jungle-task/internal/delivery/api/handler"
-	"github.com/chepaqq/jungle-task/internal/delivery/api/middleware"
+	"github.com/chepaqq/image-service/internal/delivery/api/handler"
+	"github.com/chepaqq/image-service/internal/delivery/api/middleware"
 	"github.com/gorilla/mux"
 )
 

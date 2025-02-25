@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/chepaqq/jungle-task/pkg/logger"
+	"github.com/chepaqq/image-service/pkg/logger"
 	"github.com/golang-jwt/jwt"
 )
 

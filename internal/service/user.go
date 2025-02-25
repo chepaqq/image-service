@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/chepaqq/jungle-task/internal/domain"
+	"github.com/chepaqq/image-service/internal/domain"
 	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 )

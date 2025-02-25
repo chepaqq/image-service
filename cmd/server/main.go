@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/chepaqq/jungle-task/internal/app"
-	"github.com/chepaqq/jungle-task/internal/config"
-	"github.com/chepaqq/jungle-task/pkg/logger"
+	"github.com/chepaqq/image-service/internal/app"
+	"github.com/chepaqq/image-service/internal/config"
+	"github.com/chepaqq/image-service/pkg/logger"
 	_ "github.com/lib/pq"
 )
 

@@ -5,8 +5,8 @@ import (
 	"io"
 	"net/url"
 
-	"github.com/chepaqq/jungle-task/internal/domain"
-	"github.com/chepaqq/jungle-task/pkg/storage"
+	"github.com/chepaqq/image-service/internal/domain"
+	"github.com/chepaqq/image-service/pkg/storage"
 
 	"github.com/jmoiron/sqlx"
 )
