@@ -1,10 +1,10 @@
 package service
 
 import (
-	"os"
 	"strconv"
 	"time"
 
+	"github.com/chepaqq/image-service/internal/config"
 	"github.com/chepaqq/image-service/internal/domain"
 	"github.com/chepaqq/image-service/internal/repository"
 
@@ -20,11 +20,12 @@ type UserService interface {
 // userService represents a service layer for user.
 type userService struct {
 	repo repository.UserRepository
+	cfg  *config.Config
 }
 
 // NewUserService creates and returns a new userService object
-func NewUserService(repo repository.UserRepository) UserService {
-	return &userService{repo: repo}
+func NewUserService(cfg *config.Config, repo repository.UserRepository) UserService {
+	return &userService{cfg: cfg, repo: repo}
 }
 
 // CreateUser create a new user
@@ -54,5 +55,5 @@ func (s *userService) GenerateToken(username, password string) (string, error) {
 		"exp":     time.Now().Add(12 * time.Hour).Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	return token.SignedString([]byte(s.cfg.Auth.JWTSecret))
 }

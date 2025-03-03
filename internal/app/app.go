@@ -52,7 +52,7 @@ func Run(cfg *config.Config) {
 	imageRepository := repository.NewPostgresImageRepository(postgresClient)
 
 	// Services
-	userService := service.NewUserService(userRepository)
+	userService := service.NewUserService(cfg, userRepository)
 	imageService := service.NewImageService(imageRepository, minioStorage)
 
 	// Handlers
