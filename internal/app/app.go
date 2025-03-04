@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 
 	"github.com/chepaqq/image-service/internal/config"
@@ -23,24 +22,20 @@ func Run(cfg *config.Config) {
 	// Deps
 	postgresURL := fmt.Sprintf(
 		"user=%s dbname=%s host=%s password=%s port=%s sslmode=%s",
-		cfg.Postgres.User,
-		cfg.Postgres.DBName,
-		cfg.Postgres.Host,
-		cfg.Postgres.Password,
-		cfg.Postgres.Port,
-		cfg.Postgres.SSLMode,
+		cfg.Database.User,
+		cfg.Database.DBName,
+		cfg.Database.Host,
+		cfg.Database.Password,
+		cfg.Database.Port,
+		cfg.Database.SSLMode,
 	)
 	postgresClient, err := database.ConnectPostgres(postgresURL)
 	if err != nil {
 		logger.Fatalf("Failed to connect to Postgres: %v", err)
 	}
 	logger.Info("Starting Postgres")
-	useSSL, err := strconv.ParseBool(cfg.Minio.SSL)
-	if err != nil {
-		logger.Fatal(err)
-	}
 
-	minioStorage, err := storage.NewMinioStorage(cfg.Minio.Endpoint, cfg.Minio.BucketName, cfg.Minio.BucketLocation, useSSL)
+	minioStorage, err := storage.NewMinioStorage(cfg.Storage.Endpoint, cfg.Storage.BucketName, cfg.Storage.BucketLocation, cfg.Storage.SSL)
 	if err != nil {
 		logger.Fatalf("Failed to connect to Minio: %v", err)
 	}
@@ -60,7 +55,7 @@ func Run(cfg *config.Config) {
 	imageHandler := handler.NewImageHandler(imageService)
 
 	// HTTP
-	router := api.NewRouter(*userHandler, *imageHandler)
+	router := api.NewRouter(userHandler, imageHandler, cfg.Auth.JWTSecret)
 	server := server.New(router, cfg.Server.Port)
 
 	// Waiting signals

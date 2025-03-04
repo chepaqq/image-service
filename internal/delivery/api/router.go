@@ -1,28 +1,32 @@
 package api
 
 import (
-	"net/http"
-
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 
 	"github.com/chepaqq/image-service/internal/delivery/api/handler"
-	"github.com/chepaqq/image-service/internal/delivery/api/middleware"
+	customMiddleware "github.com/chepaqq/image-service/internal/delivery/api/middleware"
 )
 
-// NewRouter initializes routes
-func NewRouter(userHandler handler.UserHandler, imageHandler handler.ImageHandler) *mux.Router {
-	router := mux.NewRouter()
+// NewRouter initializes routes using Chi
+func NewRouter(userHandler *handler.UserHandler, imageHandler *handler.ImageHandler, jwtSecret string) *chi.Mux {
+	router := chi.NewRouter()
 
-	router.HandleFunc("/login", userHandler.SignIn).Methods(http.MethodPost)
-	router.HandleFunc("/register", userHandler.SignUp).Methods(http.MethodPost)
-	router.Use(middleware.LoggingMiddleware)
-	router.Use(middleware.ApplicationRecovery)
+	router.Use(middleware.Logger)
+	router.Use(middleware.Recoverer)
 
-	restrictRouter := router.PathPrefix("/").Subrouter()
-	restrictRouter.HandleFunc("/images", imageHandler.GetImages).Methods(http.MethodGet)
-	restrictRouter.HandleFunc("/upload-picture", imageHandler.UploadImage).Methods(http.MethodPost)
+	// Public routes
+	router.Post("/login", userHandler.SignIn)
+	router.Post("/register", userHandler.SignUp)
 
-	restrictRouter.Use(middleware.AuthMiddleware)
-	restrictRouter.Use(middleware.AccessControlMiddleware)
+	// Protected routes
+	router.Route("/api", func(r chi.Router) {
+		r.Use(customMiddleware.AuthMiddleware(jwtSecret))
+		r.Use(customMiddleware.AccessControlMiddleware)
+
+		r.Get("/images", imageHandler.GetImages)
+		r.Post("/upload-picture", imageHandler.UploadImage)
+	})
+
 	return router
 }
