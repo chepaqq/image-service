@@ -64,7 +64,7 @@ func Run(cfg *config.Config) {
 
 	select {
 	case s := <-interrupt:
-		logger.Errorf("Signal interrupt error: " + s.String())
+		logger.Errorf("Signal interrupt error: %s", s.String())
 	case err = <-server.Notify():
 		logger.Infof("Server notify %v:", err)
 	}
